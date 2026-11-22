@@ -10,7 +10,7 @@ A bancada é uma balança (viga) com 2 motores brushless, controlada por um ESP3
 | Pasta | Conteúdo |
 |---|---|
 | [`proposta/`](proposta) | Proposta de IC (PDF do SUAP) |
-| [`codigos_estabilizacao_dRehmFlight/`](codigos_estabilizacao_dRehmFlight) | ✅ Códigos de estabilização **prontos para rodar** (base dRehmFlight): MPU6050 I2C, BMI323 SPI e BMI323 com filtro interno |
+| [`codigos_estabilizacao_dRehmFlight/`](codigos_estabilizacao_dRehmFlight) | Códigos de estabilização **prontos para rodar** (base dRehmFlight): MPU6050 I2C, BMI323 SPI e BMI323 com filtro interno |
 | [`testes_componentes/`](testes_componentes) | Testes isolados de cada componente: MPU6050 (I2C), BMI323 (SPI e I2C), micro do GY-601N1 (UART) e ESCs/motores (PWM) |
 
 ## Para que serve `testes_componentes/`

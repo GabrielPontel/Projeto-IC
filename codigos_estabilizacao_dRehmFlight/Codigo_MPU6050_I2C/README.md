@@ -1,6 +1,6 @@
 # Código MPU6050 (I2C)
 
-✅ **Pronto para rodar.** Estabiliza a haste com o sensor **MPU6050** lido por **I2C**.
+**Pronto para rodar.** Estabiliza a haste com o sensor **MPU6050** lido por **I2C**.
 
 ## Tecnologia
 

@@ -1,6 +1,6 @@
 # Código BMI323 (SPI)
 
-✅ **Pronto para rodar.** Estabiliza a haste com o sensor **BMI323** (placa GY-601N1) lido direto por **SPI**.
+**Pronto para rodar.** Estabiliza a haste com o sensor **BMI323** (placa GY-601N1) lido direto por **SPI**.
 
 ## Tecnologia
 

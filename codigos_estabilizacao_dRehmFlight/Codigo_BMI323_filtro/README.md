@@ -1,6 +1,6 @@
 # Código BMI323 com filtro interno (GY-601N1)
 
-✅ **Pronto para rodar.** Usa o **ângulo já calculado e filtrado pelo microcontrolador da placa GY-601N1**, que lê o BMI323 internamente. O ESP32 não roda o Madgwick neste modo.
+**Pronto para rodar.** Usa o **ângulo já calculado e filtrado pelo microcontrolador da placa GY-601N1**, que lê o BMI323 internamente. O ESP32 não roda o Madgwick neste modo.
 
 ## Tecnologia
 

@@ -1,8 +1,8 @@
-# 🚁 Códigos de Estabilização a partir do dRehmFlight
+# Códigos de Estabilização a partir do dRehmFlight
 
 Firmwares **prontos para rodar** que estabilizam a bancada da IC — uma haste (pêndulo/balança) com **2 motores brushless** — usando um **ESP32** e controle **PID**. Os três códigos são adaptações do controlador de voo open-source [dRehmFlight](https://github.com/nickrehm/dRehmFlight) (Nicholas Rehm, GPL-3.0), portado do Teensy para o ESP32 e reduzido para 2 motores.
 
-> ✅ **Status: pronto para rodar.** São os códigos usados na apresentação da IC. Cada um compila e roda como está: grave no ESP32, deixe a haste parada e nivelada, e ele calibra o sensor e sobe o acelerador sozinho.
+> **Status: pronto para rodar.** São os códigos usados na apresentação da IC. Cada um compila e roda como está: grave no ESP32, deixe a haste parada e nivelada, e ele calibra o sensor e sobe o acelerador sozinho.
 
 ## Os três códigos
 
@@ -38,7 +38,7 @@ O receptor de rádio do dRehmFlight está **desativado**: os pinos padrão dele 
 5. Abra o monitor serial em **500000 baud**.
 6. Deixe a haste **parada e nivelada** durante a calibração (~5 s). Depois disso o acelerador sobe sozinho.
 
-> ⚠️ **Segurança:** teste sem hélices na primeira vez e deixe a bancada presa. Para cortar os motores a qualquer momento, envie `d` no monitor serial.
+> **Segurança:** teste sem hélices na primeira vez e deixe a bancada presa. Para cortar os motores a qualquer momento, envie `d` no monitor serial.
 
 ## Comandos pelo monitor serial
 
