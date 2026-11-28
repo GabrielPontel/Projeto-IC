@@ -10,7 +10,7 @@
 - **Reserva: UART 9600 8N1** (PS em 3V3). Se o I2C falhar, o código religa o módulo em UART sozinho. Os quadros têm 13 bytes `A4 03 14 08 | roll pitch yaw temp | CHK`, em int16/100 com checksum, e chegam a ~50 quadros/s.
 - O micro da placa se autocalibra ~3 s depois de ligar (haste **parada**). Na partida o código guarda a "tara" do ângulo.
 - Como não há giroscópio bruto neste modo, a **velocidade angular do termo D é derivada do próprio ângulo**, com passa-baixa (`GY_FILTRO_VEL = 0.4`)
-- PID de ângulo (Kp 0,2 · Ki 0,3 · Kd 0,05) → 2 ESCs a **400 Hz / 1000–2000 µs**
+- PID de ângulo (Kp 0,31 · Ki 0,4 · Kd 0,14) → 2 ESCs a **400 Hz / 1000–2000 µs**
 - O código também tem o caminho por SPI direto ao BMI323 (`USE_BMI323_SPI`), desligado nesta versão
 
 ## Ligações

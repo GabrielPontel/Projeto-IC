@@ -8,7 +8,7 @@
 - **MPU6050** (giroscópio + acelerômetro de 6 eixos) no barramento I2C a **400 kHz**, endereço `0x68`. É o máximo do datasheet; a fiação de protoboard não aguenta 1 MHz.
 - Faixas: giroscópio **±250 °/s** e acelerômetro **±2 g**
 - O sensor entrega dados novos a ~1 kHz. Eles passam pelo passa-baixa e pelo **filtro de Madgwick** no próprio ESP32, que calcula roll e pitch.
-- PID de ângulo (Kp 0,2 · Ki 0,3 · Kd 0,05) gera o comando dos 2 ESCs a **400 Hz / 1000–2000 µs**
+- PID de ângulo (Kp 0,31 · Ki 0,4 · Kd 0,14) gera o comando dos 2 ESCs a **400 Hz / 1000–2000 µs**
 
 ## Ligações
 

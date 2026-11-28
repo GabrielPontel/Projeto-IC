@@ -10,7 +10,7 @@
 - **ODR de 800 Hz** em modo de alto desempenho, banda ODR/2 (registradores `0x20 = 0x702B`, `0x21 = 0x704B`)
   - Existe uma opção "turbo" de **1600 Hz** (`#define BMI_ODR_HZ 1600`). Ela não melhorou a estabilização nos testes (giroscópio mais ruidoso), por isso o padrão é 800 Hz.
 - Quando o laço de 2 kHz não encontra amostra nova, reaproveita a última válida
-- Filtro de **Madgwick** no ESP32 → PID de ângulo (Kp 0,2 · Ki 0,3 · Kd 0,05) → 2 ESCs a **400 Hz / 1000–2000 µs**
+- Filtro de **Madgwick** no ESP32 → PID de ângulo (Kp 0,31 · Ki 0,4 · Kd 0,14) → 2 ESCs a **400 Hz / 1000–2000 µs**
 - Na partida, o código mede e mostra no serial quantas amostras novas chegam por segundo
 
 ## Ligações
