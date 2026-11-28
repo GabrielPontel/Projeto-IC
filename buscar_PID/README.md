@@ -1,6 +1,6 @@
 # Busca do PID
 
-Como chegamos ao PID final **Kp 0,31 · Ki 0,4 · Kd 0,14** da viga de 2 motores (ESP32 + dRehmFlight, sensor MPU6050 por I2C, eixo roll). O ponto de partida foi o método de **Ziegler-Nichols (Z-N)**; como o Z-N clássico não estabilizou a viga, o PID foi **refinado por testes**, um parâmetro por vez, com uma nota e limites definidos. Este documento reúne o processo inteiro e os dados brutos de todos os testes válidos.
+Como cheguei ao PID final **Kp 0,31 · Ki 0,4 · Kd 0,14** da viga de 2 motores (ESP32 + dRehmFlight, sensor MPU6050 por I2C, eixo roll). O ponto de partida foi o método de **Ziegler-Nichols (Z-N)**; como o Z-N clássico não estabilizou a viga, refinei o PID **por testes**, um parâmetro por vez, com uma nota e limites definidos. Este documento reúne o processo inteiro e os dados brutos de todos os testes válidos.
 
 ## Conteúdo da pasta
 
@@ -12,14 +12,14 @@ Como chegamos ao PID final **Kp 0,31 · Ki 0,4 · Kd 0,14** da viga de 2 motores
 | [`resumo_pid_mpu.csv`](resumo_pid_mpu.csv) | Nota e métricas de cada corrida do refinamento |
 | [`ferramentas/`](ferramentas) | `controle_testes.py` (ponte USB para o ESP32) e `rodar_teste_pid.py` (executa um teste), usados para gerar os CSVs |
 
-Os CSVs estão **sem alteração**, exatamente como saíram da ponte serial. Ficaram de fora apenas corridas inválidas (viga travada, queda de comunicação, teste interrompido) e testes de outras etapas.
+Os CSVs estão **sem alteração**, exatamente como saíram da ponte serial. Deixei de fora apenas corridas inválidas (viga travada, queda de comunicação, teste interrompido) e testes de outras etapas.
 
 ## 1. Resumo
 
 | | Kp | Ki | Kd | Origem |
 |---|---|---|---|---|
 | Padrão do dRehmFlight | 0,2 | 0,3 | 0,05 | Valores padrão do firmware (ajuste empírico do autor) |
-| Z-N clássico (calculado) | 0,270 | 0,667 | 0,0273 | Ku = 0,45, Tu = 0,81 s medidos na nossa viga |
+| Z-N clássico (calculado) | 0,270 | 0,667 | 0,0273 | Ku = 0,45, Tu = 0,81 s medidos na minha viga |
 | **PID final escolhido** | **0,31** | **0,4** | **0,14** | Z-N como ponto de partida + refinamento por testes |
 
 O PID final tem **nota 0,68** (média de 3 corridas), contra **1,19** do padrão e **19,05** do Z-N clássico (que não estabilizou). Assenta em ~1,2 s (o padrão em ~5 s), com pico depois de 3 s de 0,5° e sem tremor dos motores (desvio do motor 1 de 2,1 µs, abaixo do limite de 3,5 µs).
@@ -34,7 +34,7 @@ No firmware o cálculo é `PID = 0,01 · (Kp·erro + Ki·∫erro·dt − Kd·gir
 ### O que o Z-N prescreve
 O método de malha fechada (ganho crítico): com Ki = Kd = 0, aumenta-se o Kp até a viga oscilar de forma sustentada. Esse Kp é o **Ku** e o período da oscilação é o **Tu**. A tabela clássica dá Kp = 0,6·Ku, Ti = Tu/2 e Td = Tu/8, e no firmware (forma paralela) Ki = Kp/Ti e Kd = Kp·Td.
 
-Medimos (P puro, acelerador de 1200 µs, ~16 s por teste): com Kp 0,40 a oscilação amortece; de 0,42 a 0,44 ela é sustentada mas só de um lado do zero; com **Kp 0,45** ela é sustentada e passa pelos dois lados do zero (o critério do método). Adotamos **Ku = 0,45** e **Tu = 0,81 s** (ensaios vizinhos deram 0,86 a 0,96 s). Os detalhes desses ensaios estão logo abaixo e os CSVs em [`dados/1_ziegler_nichols_thr1200/`](dados/1_ziegler_nichols_thr1200).
+Medi (P puro, acelerador de 1200 µs, ~16 s por teste): com Kp 0,40 a oscilação amortece; de 0,42 a 0,44 ela é sustentada mas só de um lado do zero; com **Kp 0,45** ela é sustentada e passa pelos dois lados do zero (o critério do método). Adotei **Ku = 0,45** e **Tu = 0,81 s** (ensaios vizinhos deram 0,86 a 0,96 s). Os detalhes desses ensaios estão logo abaixo e os CSVs em [`dados/1_ziegler_nichols_thr1200/`](dados/1_ziegler_nichols_thr1200).
 
 | Passo | Conta | Resultado |
 |---|---|---|
@@ -67,7 +67,7 @@ Observações importantes:
 
 ### Valores adotados
 - **Ku = 0,45**: é o primeiro Kp em que a oscilação é sustentada **e passa pelos dois lados do zero**, que é a definição do método (oscilação em torno do alvo). Com 0,42 a 0,44 a oscilação também se mantém, mas só de um lado, deslocada pelo peso desigual da viga (não há integral). Com 0,40 ela amortece.
-- **Tu = 0,81 s**: período medido no próprio ensaio com Ku (0,45). Os ensaios vizinhos deram 0,86 s (Kp 0,50), 0,90 s (0,44) e 0,96 s (0,42), então o Tu fica entre 0,8 e 1,0 s e usamos o valor medido em Ku.
+- **Tu = 0,81 s**: período medido no próprio ensaio com Ku (0,45). Os ensaios vizinhos deram 0,86 s (Kp 0,50), 0,90 s (0,44) e 0,96 s (0,42), então o Tu fica entre 0,8 e 1,0 s e usei o valor medido em Ku.
 
 ### Cálculo (Z-N clássico)
 
@@ -96,7 +96,7 @@ O Z-N clássico busca uma queda de um quarto da amplitude por ciclo, o que é ag
 ### O que aconteceu ao aplicar o Z-N
 O Z-N clássico (0,27 / 0,667 / 0,0273) **não estabilizou**: a viga oscilou de batente a batente (±20° a ±24°), tanto com acelerador de 1200 µs (±19°) quanto de 1150 µs (nota 19,05, só 11% do tempo dentro de ±1°). Um segundo teste com Ki 0,5 e Kd baixo (0,0273) também oscilou.
 
-Isso é esperado na literatura: as regras do Z-N são **agressivas para processos que se comportam como integradores** (Tyreus e Luyben propuseram ajustes menos agressivos, com Ti = 2,2·Tu), e a viga é um sistema que integra duas vezes (torque, giro, ângulo) com batentes mecânicos. O nosso Ku também foi estimado com a oscilação limitada pelos batentes. As causas concretas aqui foram **Ki alto (windup nos batentes) e Kd baixo (pouco amortecimento)**.
+Isso é esperado na literatura: as regras do Z-N são **agressivas para processos que se comportam como integradores** (Tyreus e Luyben propuseram ajustes menos agressivos, com Ti = 2,2·Tu), e a viga é um sistema que integra duas vezes (torque, giro, ângulo) com batentes mecânicos. O meu Ku também foi estimado com a oscilação limitada pelos batentes. As causas concretas aqui foram **Ki alto (windup nos batentes) e Kd baixo (pouco amortecimento)**.
 
 ## 3. Fase 2: refinamento do PID
 - **Condições iguais em todos os testes:** acelerador de 1150 µs constantes, 40 s armado, viga solta e sem tocar, partindo do batente (~−19,6°); o PID é enviado ao vivo (`#P/#I/#D`).
@@ -198,7 +198,7 @@ Os ganhos ficam nas variáveis `Kp_roll_angle`, `Ki_roll_angle` e `Kd_roll_angle
 3. `ferramentas/rodar_teste_pid.py Kp Ki Kd [tempo] [acelerador]` executa um teste: ajusta o limite e os ganhos ao vivo (`#L`, `#P`, `#I`, `#D`), abre o CSV, arma (`a`), sobe o acelerador (`#T1150`) até o valor do teste, mantém pelo tempo pedido, desarma (`d`) e fecha o arquivo. Se o |roll| passar de 38°, o teste é abortado.
 4. Cada CSV traz: `tempo_s`, `roll_graus`, `pitch_graus`, giros, saídas do PID, `motor1_us`, `motor2_us`, `Kp`, `Ki`, `Kd`, `acelerador_us`, acelerações e `micros`. O nome do arquivo tem os ganhos e o acelerador: `zn_P<Kp>_I<Ki>_D<Kd>_thr<acelerador>_<data>_<hora>.csv`. O `_stats.csv` traz os contadores do laço por segundo.
 5. Formato: separador `;`, decimal com vírgula, UTF-8.
-6. Segurança: o usuário ficou ao lado da viga em todos os testes, e o ESP32 corta o acelerador se a inclinação passar de 45°.
+6. Segurança: fiquei ao lado da viga em todos os testes, e o ESP32 corta o acelerador se a inclinação passar de 45°.
 
 ### Gráficos
 
