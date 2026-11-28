@@ -1,25 +1,26 @@
 # Códigos de Estabilização a partir do dRehmFlight
 
-Firmwares **prontos para rodar** que estabilizam a bancada da IC — uma haste (pêndulo/balança) com **2 motores brushless** — usando um **ESP32** e controle **PID**. Os três códigos são adaptações do controlador de voo open-source [dRehmFlight](https://github.com/nickrehm/dRehmFlight) (Nicholas Rehm, GPL-3.0), portado do Teensy para o ESP32 e reduzido para 2 motores.
+Firmwares **prontos para rodar** que estabilizam a bancada da IC — uma haste (pêndulo/balança) com **2 motores brushless** — usando um **ESP32** e controle **PID**. Os quatro códigos são adaptações do controlador de voo open-source [dRehmFlight](https://github.com/nickrehm/dRehmFlight) (Nicholas Rehm, GPL-3.0), portado do Teensy para o ESP32 e reduzido para 2 motores.
 
 > **Status: pronto para rodar.** São os códigos usados na apresentação da IC. Cada um compila e roda como está: grave no ESP32, deixe a haste parada e nivelada, e ele calibra o sensor e sobe o acelerador sozinho.
 
-## Os três códigos
+## Os quatro códigos
 
 | Pasta | Sensor | Comunicação | Taxa do sensor | Como obtém o ângulo |
 |---|---|---|---|---|
 | [`Codigo_MPU6050_I2C`](Codigo_MPU6050_I2C) | MPU6050 | I2C 400 kHz | ~1 kHz | Giroscópio + acelerômetro → filtro de **Madgwick** no ESP32 |
 | [`Codigo_BMI323_SPI`](Codigo_BMI323_SPI) | BMI323 (placa GY-601N1) | SPI 10 MHz (cai para 8 MHz se falhar) | 800 Hz (opção 1600 Hz) | Giroscópio + acelerômetro → filtro de **Madgwick** no ESP32 |
+| [`Codigo_BMI323_I2C`](Codigo_BMI323_I2C) | BMI323 (placa GY-601N1) | I2C 400 kHz, endereço 0x68 (cai para 100 kHz se falhar) | 800 Hz | Giroscópio + acelerômetro → filtro de **Madgwick** no ESP32 |
 | [`Codigo_BMI323_filtro`](Codigo_BMI323_filtro) | BMI323 + microcontrolador da GY-601N1 | I2C 400 kHz no endereço 0x52 (cai para UART 9600 se falhar) | ~175 ângulos/s | Ângulo **já filtrado pelo micro da placa** |
 
-## O que os três têm em comum
+## O que os quatro têm em comum
 
 | Item | Valor |
 |---|---|
 | Microcontrolador | ESP32 DevKit (LED no GPIO 2) |
 | Laço de controle | **2 kHz** (`loopRate(2000)`, 500 µs por ciclo) |
 | Estimativa de atitude | Filtro de Madgwick (`B_madgwick = 0.04`) + passa-baixa no acelerômetro (`B_accel = 0.14`) e no giroscópio (`B_gyro = 0.1`) |
-| Controle | PID de ângulo — **Kp 0,2 · Ki 0,3 · Kd 0,05**, integrador limitado em ±25 |
+| Controle | PID de ângulo — **Kp 0,31 · Ki 0,4 · Kd 0,14** (o melhor encontrado na [busca do PID](../buscar_PID/README.md)), integrador limitado em ±25 |
 | Motores | 2 brushless com **ESC SimonK HW-30A** |
 | Sinal dos ESCs | PWM de servo a **400 Hz**, pulso de **1000–2000 µs** (biblioteca ESP32Servo) |
 | Pinos dos ESCs | **GPIO 32** = motor esquerdo · **GPIO 33** = motor direito |
@@ -52,7 +53,7 @@ O receptor de rádio do dRehmFlight está **desativado**: os pinos padrão dele 
 | `c` | Recalibra o sensor (só com o sistema desarmado) |
 | `g` | Mostra os ganhos atuais |
 | `l` | Liga/desliga o log rápido de ~100 Hz para gráficos |
-| `#P0.2` `#I0.3` `#D0.05` | Ajusta Kp, Ki e Kd ao vivo |
+| `#P0.31` `#I0.4` `#D0.14` | Ajusta Kp, Ki e Kd ao vivo |
 | `#L1400` | Muda o limite do acelerador |
 | `#T1200` | Define o acelerador direto (µs) |
 | `#A45` | Muda o ângulo de desarme automático |
