@@ -1,6 +1,6 @@
-# Projeto-IC
+# Estabilização de uma viga com 2 motores via ESP32 e PID (dRehmFlight)
 
-Repositório da Iniciação Científica (IFSP – Presidente Epitácio):
+Repositório da Iniciação Científica (IFSP – Presidente Epitácio), antes chamado Projeto-IC:
 **Desenvolvimento de uma Aplicação Web do Controlador PID para Estabilização de um Motor Brushless via ESP32.**
 
 A bancada é uma balança (viga) com 2 motores brushless, controlada por um ESP32 com PID em cascata, lendo a inclinação por sensor inercial (MPU6050 ou BMI323). O PID final, encontrado por Ziegler-Nichols e refinamento por testes, é **Kp 0,31 · Ki 0,4 · Kd 0,14**.
