@@ -15,11 +15,19 @@ As métricas são as pedidas para o relatório: **jitter** (do ângulo e do temp
 
 | Item | O que é |
 |---|---|
-| [`graficos_comparativo.py`](graficos_comparativo.py) | Script que lê os CSVs e gera os 4 gráficos. Requisitos: `pip install numpy scipy matplotlib` |
-| [`resultados/dados/`](resultados/dados) | Um CSV por configuração (+ `_stats.csv`), sem alteração |
-| [`resultados/graficos/`](resultados/graficos) | Os 4 gráficos gerados |
+| [`graficos_comparativo.py`](graficos_comparativo.py) | Script em Python que lê os CSVs de `resultados/dados/`, calcula as métricas e gera os 4 gráficos em `resultados/graficos/`. Requisitos: `pip install numpy scipy matplotlib`. Para rodar: `python graficos_comparativo.py` dentro desta pasta |
+| [`resultados/`](resultados) | Tudo que sai dos testes: os dados medidos e os gráficos gerados a partir deles |
+| [`resultados/dados/`](resultados/dados) | Uma subpasta por configuração (`1_MPU6050_I2C`, `2_BMI323_I2C`, `3_BMI323_SPI`, `4_BMI323_SPI_filtro`), cada uma com os dois arquivos CSV da corrida de 1 min parado + 3 min armado, sem alteração |
+| [`resultados/graficos/`](resultados/graficos) | Os 4 gráficos (PNG) gerados pelo script |
 
-Para regerar os gráficos: `python graficos_comparativo.py` (dentro desta pasta).
+### Os dois CSVs de cada configuração
+
+| Arquivo | O que tem |
+|---|---|
+| `comp_<sensor>_..._3min_final_<data>.csv` | **Dados da corrida**, cerca de 100 linhas por segundo: tempo, roll e pitch, giros, saídas do PID, comandos dos motores, ganhos, acelerador e acelerações. Dele saem o erro de roll (gráficos 1 e 2) e a trepidação (gráfico 4) |
+| `comp_<sensor>_..._3min_final_<data>_stats.csv` | **Estatísticas do laço de controle**, uma linha por segundo: tempo de trabalho, período do laço (médio, máximo e mínimo), estouros e ciclos por segundo. Dele sai o jitter do tempo do laço (gráfico 3) |
+
+O mesmo nome com `_stats` no fim é sempre o arquivo de estatísticas da mesma corrida.
 
 ## Como os testes foram feitos
 

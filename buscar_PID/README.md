@@ -6,11 +6,13 @@ Como cheguei ao PID final **Kp 0,31 · Ki 0,4 · Kd 0,14** da viga de 2 motores 
 
 | Item | O que é |
 |---|---|
-| [`dados/1_ziegler_nichols_thr1200/`](dados/1_ziegler_nichols_thr1200) | 15 CSVs da fase Z-N: varredura de Kp com P puro (Ki = Kd = 0) e os dois PIDs calculados pela tabela. Acelerador de 1200 µs, ~16 s por teste (18/11/2026) |
-| [`dados/2_refinamento_thr1150/`](dados/2_refinamento_thr1150) | 84 CSVs da fase de refinamento (58 combinações de ganhos), cada um com seu `_stats.csv`. Acelerador de 1150 µs, 40 s armado (22/11/2026) |
+| [`dados/1_ziegler_nichols_thr1200/`](dados/1_ziegler_nichols_thr1200) | 15 CSVs da fase Ziegler-Nichols: a varredura de Kp com P puro (Ki = Kd = 0), usada para achar o ganho crítico, e os dois PIDs calculados pela tabela. Acelerador de 1200 µs, ~16 s por teste (18/11/2026) |
+| [`dados/2_refinamento_thr1150/`](dados/2_refinamento_thr1150) | 84 CSVs da fase de refinamento (58 combinações de ganhos). Cada corrida tem um CSV com os dados e um `_stats.csv` com o tempo do laço por segundo. Acelerador de 1150 µs, 40 s armado (22/11/2026) |
+| [`tabela_completa/`](tabela_completa/README.md) | Tabela com as 58 combinações de ganhos testadas e seus resultados |
 | [`graficos/`](graficos) | Gráficos gerados a partir desses CSVs |
-| [`resumo_pid_mpu.csv`](resumo_pid_mpu.csv) | Nota e métricas de cada corrida do refinamento |
-| [`ferramentas/`](ferramentas) | `controle_testes.py` (ponte USB para o ESP32) e `rodar_teste_pid.py` (executa um teste), usados para gerar os CSVs |
+| [`resumo_pid_mpu.csv`](resumo_pid_mpu.csv) | Uma linha por combinação de ganhos: nota média, mínima e máxima, assentamento, pico, desvio do motor e status |
+| [`ferramentas/controle_testes.py`](ferramentas/controle_testes.py) | Ponte USB entre o computador e o ESP32: envia os comandos e grava os dados de cada teste em CSV |
+| [`ferramentas/rodar_teste_pid.py`](ferramentas/rodar_teste_pid.py) | Executa um teste completo com um PID (ajusta os ganhos, arma, sobe o acelerador, mantém, desarma) e mede o resultado |
 
 Os CSVs estão **sem alteração**, exatamente como saíram da ponte serial. Deixei de fora apenas corridas inválidas (viga travada, queda de comunicação, teste interrompido) e testes de outras etapas.
 
@@ -107,67 +109,9 @@ Isso é esperado na literatura: as regras do Z-N são **agressivas para processo
 - **Decisão:** a nota decide; só quando a nota é igual (duas casas decimais) vale o de **menor Kp**. Só PIDs com 2 ou mais corridas podem ser o escolhido.
 - **Ruído:** o mesmo PID rodado 3 vezes deu notas entre 0,69 e 0,87, então diferenças de ~0,1 entre PIDs de uma corrida só não são significativas.
 
-### Tabela completa (58 combinações de ganhos)
-| # | Kp | Ki | Kd | Corridas | Nota | Assentamento | Pico (>3 s) | Desvio motor 1 | Dentro de ±1° | Status | Observação |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 0,27 | 0,667 | 0,0273 | 1 | 19,05 | 15,5 s | 24,1° | 36,3 µs | 11% | REPROVADO | Z-N classico. NAO estabilizou: oscilacao +-24 graus de batente a batente (Ki alto + Kd baixo). |
-| 2 | 0,27 | 0,5 | 0,0273 | 1 | 14,83 | 41,9 s | 24,6° | 23,3 µs | 45% | REPROVADO | Ki 0,5 com Kd baixo: ainda oscila entre os batentes (um trecho calmo de ~5 s). |
-| 3 | 0,27 | 0,5 | 0,1 | 1 | 1,07 | 3,4 s | 3,7° | 1,8 µs | 100% | OK | Kd 0,1 resolveu a oscilacao. Passa +12 graus do nivel ao sair do batente (Ki alto). |
-| 4 | 0,2 | 0,3 | 0,05 | 2 | 1,19 | 4,9 s | 2,9° | 1,2 µs | 100% | OK | PID padrao do firmware. Referencia: assenta ~5 s, estavel e consistente nas 2 corridas. |
-| 5 | 0,27 | 0,5 | 0,13 | 1 | 1,07 | 4,2 s | 3,1° | 2,0 µs | 100% | OK | Kd 0,13: roll mais parado, mas ainda passa +8 graus do nivel (Ki 0,5). |
-| 6 | 0,27 | 0,4 | 0,13 | 3 | 0,78 | 1,0 s | 0,7° | 2,0 µs | 100% | OK | Ki 0,4: quase nao ultrapassa o nivel (+1,5 graus) e assenta em ~1 s. Confirmado em 3 corridas (0,77/0,69/0,87). Foi o melhor ate a varredura fina; superado por Kd 0,12. |
-| 7 | 0,27 | 0,3 | 0,13 | 1 | 0,96 | 2,6 s | 1,1° | 2,0 µs | 100% | OK | Ki 0,3: nota maior (0,96) e assenta mais devagar (2,6 s); no limite do ruido. Voltou para 0,4. |
-| 8 | 0,24 | 0,4 | 0,13 | 1 | 0,81 | 1,1 s | 0,9° | 2,1 µs | 100% | OK | Kp 0,24: empate com Kp 0,27 (dentro da variacao). Mantido 0,27. |
-| 9 | 0,3 | 0,4 | 0,13 | 2 | 0,75 | 1,2 s | 0,7° | 2,0 µs | 100% | OK | Kp 0,30: empate com Kp 0,27. O P nao e o limitante entre 0,24 e 0,30. |
-| 10 | 0,27 | 0,4 | 0,15 | 1 | 0,77 | 1,5 s | 1,2° | 2,1 µs | 100% | OK | Kd 0,15: empate, sem tremor extra. Mantido Kd 0,13. |
-| 11 | 0,27 | 0,35 | 0,13 | 1 | 0,81 | 2,4 s | 0,7° | 1,9 µs | 100% | OK | Ki 0,35: indistinguivel de 0,4 (assenta um pouco mais devagar, 2,4 s). Mantido 0,4. |
-| 12 | 0,3 | 0,4 | 0,15 | 2 | 0,82 | 1,3 s | 0,8° | 2,4 µs | 100% | OK | Kp 0,30 e Kd 0,15 juntos: igual ao melhor (media 0,82), sem ganho. |
-| 13 | 0,27 | 0,4 | 0,11 | 2 | 0,87 | 1,4 s | 0,9° | 1,8 µs | 100% | OK | Kd 0,11: um pouco pior (0,87) e assenta em ~1,4 s; motores mais quietos. Mantido Kd 0,13. |
-| 14 | 0,27 | 0,45 | 0,13 | 2 | 0,92 | 2,1 s | 1,6° | 2,0 µs | 100% | OK | Ki 0,45: pior (0,92): assenta em ~2 s e passa mais do nivel (1,4 a 1,7 graus). Ki 0,4 e o ponto bom. |
-| 15 | 0,27 | 0,42 | 0,13 | 1 | 0,85 | 1,4 s | 0,8° | 2,0 µs | 100% | OK | Varredura fina Ki: 0,85, patamar do Ki 0,4. |
-| 16 | 0,27 | 0,38 | 0,13 | 1 | 0,83 | 1,7 s | 0,7° | 2,1 µs | 100% | OK | Varredura fina Ki: 0,83, patamar do Ki 0,4. |
-| 17 | 0,27 | 0,4 | 0,14 | 1 | 0,81 | 1,0 s | 0,8° | 2,3 µs | 100% | OK | Varredura fina Kd: 0,81, sem ganho. |
-| 18 | 0,27 | 0,4 | 0,12 | 3 | 0,70 | 1,1 s | 0,5° | 1,8 µs | 100% | OK | Kd 0,12: mais consistente (0,72/0,70/0,69), pico 0,6 graus e motores mais quietos (1,8 us). NOVO MELHOR. |
-| 19 | 0,26 | 0,4 | 0,13 | 1 | 0,74 | 1,2 s | 0,8° | 2,2 µs | 100% | OK | Varredura fina Kp: 0,74, patamar. |
-| 20 | 0,25 | 0,4 | 0,13 | 1 | 0,78 | 1,0 s | 0,7° | 2,0 µs | 100% | OK | Varredura fina Kp: 0,78, patamar; baixar o P nao piora. |
-| 21 | 0,28 | 0,4 | 0,13 | 3 | 0,74 | 1,2 s | 0,6° | 2,1 µs | 100% | OK | Kp 0,28: 3 corridas (0,73/0,75/0,75), patamar, bom. |
-| 22 | 0,26 | 0,4 | 0,12 | 1 | 0,85 | 1,3 s | 0,7° | 1,9 µs | 100% | OK | P e D baixos juntos: 0,85, nao ganhou. |
-| 23 | 0,28 | 0,4 | 0,12 | 1 | 0,74 | 1,3 s | 0,8° | 1,8 µs | 100% | OK | Kp 0,28 + Kd 0,12: 0,74, patamar. |
-| 24 | 0,28 | 0,38 | 0,13 | 3 | 0,71 | 1,6 s | 0,7° | 1,9 µs | 100% | OK | 3 corridas (0,69/0,70/0,75), consistente, patamar do melhor. |
-| 25 | 0,27 | 0,4 | 0,1 | 1 | 0,79 | 1,6 s | 1,6° | 1,5 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,79, pior. |
-| 26 | 0,27 | 0,4 | 0,09 | 1 | 0,95 | 3,5 s | 2,7° | 1,5 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,95, pior. |
-| 27 | 0,27 | 0,4 | 0,115 | 1 | 0,79 | 1,4 s | 0,7° | 1,8 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,79, pior. |
-| 28 | 0,27 | 0,4 | 0,125 | 1 | 0,80 | 1,3 s | 0,7° | 2,0 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,80, pior. |
-| 29 | 0,27 | 0,38 | 0,12 | 1 | 0,81 | 1,0 s | 1,1° | 2,1 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,81, pior. |
-| 30 | 0,27 | 0,42 | 0,12 | 1 | 0,82 | 1,4 s | 0,8° | 2,0 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,82, pior. |
-| 31 | 0,27 | 0,36 | 0,12 | 1 | 0,82 | 1,8 s | 1,4° | 1,9 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,82, pior. |
-| 32 | 0,27 | 0,44 | 0,12 | 1 | 0,78 | 1,5 s | 0,9° | 1,8 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,78, empate (dentro do ruido). |
-| 33 | 0,29 | 0,4 | 0,12 | 1 | 0,77 | 1,3 s | 0,8° | 1,8 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,77, empate (dentro do ruido). |
-| 34 | 0,3 | 0,4 | 0,12 | 1 | 0,82 | 1,4 s | 0,8° | 1,8 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,82, pior. |
-| 35 | 0,25 | 0,4 | 0,12 | 1 | 0,80 | 1,0 s | 0,6° | 2,2 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,80, pior. |
-| 36 | 0,24 | 0,4 | 0,12 | 3 | 0,76 | 1,2 s | 0,7° | 1,9 µs | 100% | OK | Varredura fina (3 corrida(s)): 0,76, empate (dentro do ruido). |
-| 37 | 0,29 | 0,38 | 0,12 | 1 | 0,90 | 1,4 s | 1,1° | 2,1 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,90, pior. |
-| 38 | 0,28 | 0,42 | 0,12 | 1 | 0,76 | 1,4 s | 0,6° | 1,9 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,76, empate (dentro do ruido). |
-| 39 | 0,23 | 0,4 | 0,12 | 1 | 0,81 | 1,1 s | 0,8° | 1,9 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,81, pior. |
-| 40 | 0,22 | 0,4 | 0,12 | 3 | 0,80 | 1,2 s | 0,7° | 1,9 µs | 100% | OK | Varredura fina (3 corrida(s)): 0,80, pior. |
-| 41 | 0,21 | 0,4 | 0,12 | 3 | 0,80 | 1,1 s | 0,8° | 1,9 µs | 100% | OK | Varredura fina (3 corrida(s)): 0,80, pior. |
-| 42 | 0,2 | 0,4 | 0,12 | 1 | 0,85 | 2,7 s | 1,6° | 1,7 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,85, pior. |
-| 43 | 0,32 | 0,4 | 0,14 | 3 | 0,69 | 1,0 s | 0,5° | 2,2 µs | 100% | OK | 3 corridas (0,70/0,65/0,73): empata com o final, mas fica na beira do degrau (Kp 0,33 ja assenta em 3 s). |
-| 44 | 0,35 | 0,4 | 0,15 | 1 | 0,78 | 3,2 s | 2,5° | 2,2 µs | 100% | OK | Ganhos altos demais: assenta em 3,2 s, pico 2,5 graus. Degrau. |
-| 45 | 0,33 | 0,4 | 0,14 | 1 | 0,78 | 3,1 s | 2,3° | 2,0 µs | 100% | OK | Acima do degrau: assenta em 3,1 s, pico 2,3 graus. |
-| 46 | 0,32 | 0,4 | 0,15 | 1 | 0,74 | 2,9 s | 1,9° | 2,1 µs | 100% | OK | Kd 0,15 com Kp 0,32: assenta em 2,9 s, pico 1,9 graus. Degrau. |
-| 47 | 0,31 | 0,4 | 0,14 | 3 | 0,68 | 1,2 s | 0,5° | 2,1 µs | 100% | OK ⭐ **MELHOR** | PID FINAL: 3 corridas (0,69/0,68/0,66), assenta em 1,0 s, pico 0,4-0,6 graus, motor 2,2 us. Melhor nota e fora do degrau. |
-| 48 | 0,32 | 0,4 | 0,13 | 1 | 0,71 | 1,3 s | 0,8° | 1,9 µs | 100% | OK | Lado de baixo do degrau: 0,71, bom. |
-| 49 | 0,31 | 0,38 | 0,14 | 1 | 0,81 | 1,7 s | 0,7° | 2,3 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,81, pior. |
-| 50 | 0,31 | 0,42 | 0,14 | 1 | 0,77 | 1,2 s | 0,7° | 2,2 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,77, empate (dentro do ruido). |
-| 51 | 0,31 | 0,36 | 0,14 | 1 | 0,80 | 1,8 s | 0,9° | 2,1 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,80, pior. |
-| 52 | 0,31 | 0,44 | 0,14 | 2 | 0,70 | 1,4 s | 0,9° | 2,0 µs | 100% | OK | Varredura fina (2 corrida(s)): 0,70, empate (dentro do ruido). |
-| 53 | 0,31 | 0,46 | 0,14 | 1 | 0,71 | 1,4 s | 0,5° | 2,1 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,71, empate (dentro do ruido). |
-| 54 | 0,31 | 0,4 | 0,135 | 1 | 0,72 | 1,2 s | 0,7° | 2,1 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,72, empate (dentro do ruido). |
-| 55 | 0,31 | 0,4 | 0,145 | 3 | 0,71 | 1,3 s | 0,6° | 2,3 µs | 100% | OK | Varredura fina (3 corrida(s)): 0,71, empate (dentro do ruido). |
-| 56 | 0,3 | 0,4 | 0,14 | 1 | 0,82 | 1,0 s | 0,7° | 2,5 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,82, pior. |
-| 57 | 0,315 | 0,4 | 0,14 | 1 | 0,76 | 1,0 s | 0,7° | 2,3 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,76, empate (dentro do ruido). |
-| 58 | 0,31 | 0,4 | 0,13 | 1 | 0,76 | 1,4 s | 0,8° | 2,2 µs | 100% | OK | Varredura fina (1 corrida(s)): 0,76, empate (dentro do ruido). |
+### Tabela completa
+
+As 58 combinações testadas, com nota, assentamento, pico e status de cada uma, estão na [tabela completa](tabela_completa/README.md).
 
 ### Por que as notas ficaram assim
 - **O primeiro segundo pesa ~73% do erro médio.** Nesse trecho a viga ainda está no batente enquanto o empuxo sobe; isso é a subida do motor, e não o PID. Por isso o piso desta métrica fica em ~0,65 e a nota 0,5 não é alcançável só com ganhos. As melhores corridas ficaram em 0,65 a 0,66, praticamente no piso.
