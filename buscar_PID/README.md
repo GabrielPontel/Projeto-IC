@@ -154,7 +154,11 @@ Os ganhos ficam nas variáveis `Kp_roll_angle`, `Ki_roll_angle` e `Kd_roll_angle
 
 ![Resumo em barras](graficos/fig6_resumo_barras.png)
 
-Os demais estão em [`graficos/`](graficos): tempo de estabilização (`fig2`), sensibilidade a cada ganho (`fig4`) e nota × assentamento (`fig5`).
+![Nota × tempo de estabilização](graficos/fig5_nota_x_estabilizacao.png)
+
+Cada ponto é um PID testado. Quanto mais perto do canto inferior esquerdo, melhor (nota baixa e estabiliza rápido). O ponto azul é o padrão do dRehmFlight (0,2 / 0,3 / 0,05) e a estrela verde é o PID final (0,31 / 0,4 / 0,14). Os PIDs que oscilaram (Z-N) ficam fora do quadro.
+
+Os demais estão em [`graficos/`](graficos): tempo de estabilização (`fig2`) e sensibilidade a cada ganho (`fig4`).
 
 
 ## 6. Limitações
